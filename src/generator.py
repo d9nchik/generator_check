@@ -1,6 +1,8 @@
-from math import log, exp, sqrt, pi
-from random import random, randint
 from abc import ABC, abstractmethod
+from math import log, exp, sqrt
+from random import random, randint
+
+from scipy.special import erf
 
 
 def equal_distributed() -> float:
@@ -47,10 +49,12 @@ class NormalGenerator(Generator):
     def generate(self) -> float:
         return self.__generate_mu() * self.sigma + self.a
 
+    @staticmethod
+    def getPhi(x: float) -> float:
+        return (1 + erf(x / sqrt(2))) / 2
+
     def F(self, x: float) -> float:
-        numerator = exp(-0.5 * ((x - self.a) / self.sigma) ** 2)
-        denominator = self.sigma * sqrt(2 * pi)
-        return numerator / denominator
+        return self.getPhi((x - self.a) / self.sigma)
 
 
 class EqualDistributionGenerator(Generator):
@@ -68,7 +72,4 @@ class EqualDistributionGenerator(Generator):
         return self.__get_z() / self.c
 
     def F(self, x: float) -> float:
-        return 0
-
-    def distribution(self, a: float, b: float) -> float:
-        return b - a
+        return x
